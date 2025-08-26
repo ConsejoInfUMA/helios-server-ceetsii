@@ -52,8 +52,7 @@ DATABASES = {
 # override if we have an env variable
 if get_from_env('DATABASE_URL', None):
     import dj_database_url
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 
 # explicitly set the default auto-created primary field to silence warning models.W042
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -63,7 +62,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_TZ = False
 
@@ -299,6 +298,11 @@ logging.basicConfig(
 
 # set up celery
 CELERY_BROKER_URL = get_from_env('CELERY_BROKER_URL', 'amqp://localhost')
+CELERY_RESULT_BACKEND = get_from_env('CELERY_BROKER_URL', 'amqp://localhost')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
 if TESTING:
     CELERY_TASK_ALWAYS_EAGER = True
 #database_url = DATABASES['default']
@@ -316,11 +320,13 @@ if ROLLBAR_ACCESS_TOKEN:
 
 # ldap
 # see configuration example at https://pythonhosted.org/django-auth-ldap/example.html
-AUTH_LDAP_SERVER_URI = "ldap://ldap.forumsys.com" # replace by your Ldap URI
-AUTH_LDAP_BIND_DN = "cn=read-only-admin,dc=example,dc=com"
-AUTH_LDAP_BIND_PASSWORD = "password"
-AUTH_LDAP_USER_SEARCH = LDAPSearch("dc=example,dc=com",
-    ldap.SCOPE_SUBTREE, "(uid=%(user)s)"
+AUTH_LDAP_SERVER_URI = get_from_env("AUTH_LDAP_SERVER_URI", "")
+AUTH_LDAP_BIND_DN = get_from_env("AUTH_LDAP_BIND_DN", "")
+AUTH_LDAP_BIND_PASSWORD = get_from_env("AUTH_LDAP_BIND_PASSWORD", "")
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    get_from_env("AUTH_LDAP_USER_SEARCH", ""),
+    ldap.SCOPE_SUBTREE,
+    "(uid=%(user)s)",
 )
 
 AUTH_LDAP_USER_ATTR_MAP = {
