@@ -4,7 +4,8 @@ django-webtest>=1.9.11
 gunicorn==22.0.0
 
 dj-database-url==2.2.0
-psycopg2==2.9.10
+mysqlclient==2.2.7
+redis==6.4.0
 
 celery==5.4.0
 django-picklefield==3.2
